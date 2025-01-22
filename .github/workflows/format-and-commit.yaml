@@ -1,0 +1,37 @@
+name: Format and Commit HTML Files
+
+on:
+  push:
+    paths:
+      - "**/*.html"
+    branches-ignore:
+      - "gh-actions/*" # Prevent infinite loops by ignoring commits made by this workflow
+
+jobs:
+  format-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install prettier
+
+      - name: Format HTML files
+        run: npx prettier --write "**/*.html"
+
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "chore: format HTML files" || echo "No changes to commit"
+          git push
